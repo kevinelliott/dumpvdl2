@@ -402,7 +402,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 			else {
 				la_vstring_append_sprintf(avlc_str,
 					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
-					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->data, (uint8_t *)f->data
+					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 				);
 			}
 			break;
@@ -418,7 +418,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 			la_vstring_append_sprintf(proto_str, "unknown");
 			la_vstring_append_sprintf(avlc_str,
 				"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
-				f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->data, (uint8_t *)f->data
+				f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 			);
 		}
 
@@ -430,7 +430,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 		ftime, (float)v->freq / 1e+6, sig_pwr_dbfs, nf_pwr_dbfs, sig_pwr_dbfs-nf_pwr_dbfs, v->ppm_error,
 		f->src.a_addr.addr, addrtype_descr[f->src.a_addr.type], status_ag_descr[f->dst.a_addr.status],
 		f->dst.a_addr.addr, addrtype_descr[f->dst.a_addr.type], status_ag_descr[f->src.a_addr.status],
-		avlc_str->str,
+		avlc_str->str
 	);
 
 	fprintf(outf, json_str->str);
