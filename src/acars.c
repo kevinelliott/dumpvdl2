@@ -97,7 +97,7 @@ static void output_acars_pp(la_proto_node const * const node) {
 	la_vstring_destroy(vstr, true);
 }
 
-void output_acars_json(la_proto_node const * const node) {
+static void output_acars_json(la_proto_node const * const node) {
 	if(node == NULL || node->td != &la_DEF_acars_message) {
 		return;
 	}
