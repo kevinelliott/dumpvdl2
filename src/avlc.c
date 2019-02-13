@@ -334,53 +334,26 @@ static void output_avlc(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uin
 		fprintf(outf, "AVLC: type: U (%s) P/F: %x\n", U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf));
 		output_avlc_U(f);
 	} else {	// IS_I == true
-		if (output_format_json) {
-			switch(f->proto) {
-			case PROTO_ACARS:
-				proto = "acars";
-				if(f->data_valid)
-					message = format_acars(f->data);
-				else {
-					message_error = "unparseable";
-					message = format_raw((uint8_t *)f->data, f->datalen);
-				}
-				break;
-			// case PROTO_X25:
-			// 	if(f->data_valid)
-			// 		output_x25((x25_pkt_t *)f->data);
-			// 	else {
-			// 		fprintf(outf, "-- Unparseable X.25 packet\n");
-			// 		output_raw((uint8_t *)f->data, f->datalen);
-			// 	}
-			// 	break;
-			default:
-				proto = "unknown";
-				message = format_raw((uint8_t *)f->data, f->datalen);
-			}
-
-			fprintf(outf, "{ 'avlc': { 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto':  }\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
-		} else {
-			fprintf(outf, "AVLC type: I sseq: %x rseq: %x poll: %x\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
-			switch(f->proto) {
-			case PROTO_ACARS:
-				if(f->data_valid)
-					output_acars(f->data);
-				else {
-					fprintf(outf, "-- Unparseable ACARS payload\n");
-					output_raw((uint8_t *)f->data, f->datalen);
-				}
-				break;
-			case PROTO_X25:
-				if(f->data_valid)
-					output_x25((x25_pkt_t *)f->data);
-				else {
-					fprintf(outf, "-- Unparseable X.25 packet\n");
-					output_raw((uint8_t *)f->data, f->datalen);
-				}
-				break;
-			default:
+		fprintf(outf, "AVLC type: I sseq: %x rseq: %x poll: %x\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
+		switch(f->proto) {
+		case PROTO_ACARS:
+			if(f->data_valid)
+				output_acars(f->data);
+			else {
+				fprintf(outf, "-- Unparseable ACARS payload\n");
 				output_raw((uint8_t *)f->data, f->datalen);
 			}
+			break;
+		case PROTO_X25:
+			if(f->data_valid)
+				output_x25((x25_pkt_t *)f->data);
+			else {
+				fprintf(outf, "-- Unparseable X.25 packet\n");
+				output_raw((uint8_t *)f->data, f->datalen);
+			}
+			break;
+		default:
+			output_raw((uint8_t *)f->data, f->datalen);
 		}
 	}
 	fflush(outf);
