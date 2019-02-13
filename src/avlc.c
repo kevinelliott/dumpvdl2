@@ -397,7 +397,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 		case PROTO_ACARS:
 			la_vstring_append_sprintf(proto_str, "acars");
 			if(f->data_valid) {
-				la_vstring *acars_str = output_acars_json(f->data);
+				la_vstring *acars_str = format_acars_json(f->data);
 				la_vstring_append_sprintf(avlc_str,
 					"{ 'avlc': { 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'acars': '%s' }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, acars_str->str
