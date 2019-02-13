@@ -399,7 +399,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 			if(f->data_valid) {
 				la_vstring *acars_str = format_acars_json(f->data);
 				la_vstring_append_sprintf(avlc_str,
-					"{ 'avlc': { 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'acars': '%s' }",
+					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'acars': %s }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, acars_str->str
 				);
 				la_vstring_destroy(acars_str, true);
@@ -411,14 +411,23 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 				);
 			}
 			break;
-		// case PROTO_X25:
-		// 	if(f->data_valid)
-		// 		output_x25((x25_pkt_t *)f->data);
-		// 	else {
-		// 		fprintf(outf, "-- Unparseable X.25 packet\n");
-		// 		output_raw((uint8_t *)f->data, f->datalen);
-		// 	}
-		// 	break;
+		case PROTO_X25:
+			la_vstring_append_sprintf(proto_str, "x.25");
+			if(f->data_valid)
+				// output_x25((x25_pkt_t *)f->data);
+				la_vstring_append_sprintf(avlc_str,
+					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'x.25': 'NOT YET IMPLEMENTED' }",
+					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str
+				);
+			else {
+				// fprintf(outf, "-- Unparseable X.25 packet\n");
+				// output_raw((uint8_t *)f->data, f->datalen);
+				la_vstring_append_sprintf(avlc_str,
+					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
+				);
+			}
+			break;
 		default:
 			la_vstring_append_sprintf(proto_str, "unknown");
 			la_vstring_append_sprintf(avlc_str,
@@ -426,12 +435,10 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 				f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 			);
 		}
-
-		fprintf(outf, avlc_str->str);
 	}
 
   la_vstring_append_sprintf(json_str,
-	  "{ 'time': '%s', 'freq': '%.3f', 'signal_power_dbfs': '%.1f', 'noise_floor_power_dbfs': '%.1f', 'net_dbfs': '%.1f', 'ppm': '%.1f', 'source_address': '%06X', 'source_type': '%s', 'source_status': '%s', 'destination_address': '%06X', 'destination_type': '%s', 'destination_status': '%s', 'avlc': '%s' }",
+	  "{ 'time': '%s', 'freq': '%.3f', 'signal_power_dbfs': '%.1f', 'noise_floor_power_dbfs': '%.1f', 'net_dbfs': '%.1f', 'ppm': '%.1f', 'source_address': '%06X', 'source_type': '%s', 'source_status': '%s', 'destination_address': '%06X', 'destination_type': '%s', 'destination_status': '%s', 'avlc': '%s' }\n",
 		ftime, (float)v->freq / 1e+6, sig_pwr_dbfs, nf_pwr_dbfs, sig_pwr_dbfs-nf_pwr_dbfs, v->ppm_error,
 		f->src.a_addr.addr, addrtype_descr[f->src.a_addr.type], status_ag_descr[f->dst.a_addr.status],
 		f->dst.a_addr.addr, addrtype_descr[f->dst.a_addr.type], status_ag_descr[f->src.a_addr.status],
