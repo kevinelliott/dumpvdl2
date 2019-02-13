@@ -257,6 +257,7 @@ int rs_verify(uint8_t *data, int fec_octets);
 extern FILE *outf;
 extern uint8_t hourly, daily, utc, output_raw_frames, dump_asn1, extended_header;
 extern int pp_sockfd;
+extern int output_format_json;
 int init_output_file(char *file);
 int init_pp(char *pp_addr);
 int rotate_outfile();
