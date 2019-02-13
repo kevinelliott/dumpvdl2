@@ -175,6 +175,7 @@ void usage() {
 	fprintf(stderr, "\t\t\t\t\tIf omitted, will use VDL2 Common Signalling Channel (%u Hz)\n", CSC_FREQ);
 	fprintf(stderr, "\noutput_options:\n");
 	fprintf(stderr, "\t--output-file <output_file>\tOutput decoded frames to <output_file> (default: stdout)\n");
+	fprintf(stderr, "\t--output-json <output_file>\tOutput JSON frames to <output_file> (default: stdout)\n");
 	fprintf(stderr, "\t--hourly\t\t\tRotate output file hourly\n");
 	fprintf(stderr, "\t--daily\t\t\t\tRotate output file daily\n");
 	fprintf(stderr, "\t--utc\t\t\t\tUse UTC timestamps in output and file names\n");
@@ -367,6 +368,7 @@ int main(int argc, char **argv) {
 		{ "dump-asn1",		no_argument,		NULL,	__OPT_DUMP_ASN1 },
 		{ "extended-header",	no_argument,		NULL,	__OPT_EXTENDED_HEADER },
 		{ "output-file",	required_argument,	NULL,	__OPT_OUTPUT_FILE },
+		{ "output-json",	required_argument,	NULL,	__OPT_OUTPUT_JSON },
 		{ "iq-file",		required_argument,	NULL,	__OPT_IQ_FILE },
 		{ "oversample",		required_argument,	NULL,	__OPT_OVERSAMPLE },
 		{ "sample-format",	required_argument,	NULL,	__OPT_SAMPLE_FORMAT },
@@ -413,6 +415,7 @@ int main(int argc, char **argv) {
 	int statsd_enabled = 0;
 #endif
 	char *infile = NULL, *outfile = NULL, *pp_addr = NULL;
+	int output_format_json = 0;
 
 	fprintf(stderr, "dumpvdl2 %s (libacars %s)\n", DUMPVDL2_VERSION, LA_VERSION);
 	while((opt = getopt_long(argc, argv, "", long_opts, NULL)) != -1) {
@@ -527,6 +530,9 @@ int main(int argc, char **argv) {
 #endif
 		case __OPT_OUTPUT_FILE:
 			outfile = strdup(optarg);
+			break;
+		case __OPT_OUTPUT_FORMAT_JSON:
+			output_format_json = 1;
 			break;
 		case __OPT_OVERSAMPLE:
 			oversample = atoi(optarg);

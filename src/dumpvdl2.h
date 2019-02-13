@@ -82,6 +82,7 @@
 #define __OPT_RAW_FRAMES		18
 #define __OPT_DUMP_ASN1			19
 #define __OPT_EXTENDED_HEADER		20
+#define __OPT_OUTPUT_FORMAT_JSON		21
 
 #ifdef WITH_SDRPLAY
 #define __OPT_SDRPLAY			80

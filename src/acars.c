@@ -97,13 +97,34 @@ static void output_acars_pp(la_proto_node const * const node) {
 	la_vstring_destroy(vstr, true);
 }
 
+void output_acars_json(la_proto_node const * const node) {
+	if(node == NULL || node->td != &la_DEF_acars_message) {
+		return;
+	}
+	la_acars_msg *msg = node->data;
+	char *txt = strdup(msg->txt);
+	for(char *ptr = txt; *ptr != 0; ptr++) {
+		if (*ptr == '\n' || *ptr == '\r') {
+			*ptr = ' ';
+		}
+	}
+	fprintf(outf, "{ 'mode': '%1c', 'reg': '%7s', 'ack': '%1c', 'label': '%2s', 'blockId': '%1c', 'no': '%4s', 'flight_id': '%6s', txt: '%s' }",
+		msg->mode, msg->reg, msg->ack, msg->label, msg->block_id, msg->no, msg->flight_id, txt);
+
+	la_vstring_destroy(vstr, true);
+}
+
 void output_acars(void const *msg) {
 	if(msg == NULL) {
 		return;
 	}
 	la_proto_node *node = (la_proto_node *)msg;
 	la_vstring *vstr = la_proto_tree_format_text(NULL, node);
-	fprintf(outf, "%s", vstr->str);
+	if(output_format_json > 0) {
+		output_acars_json(node);
+	} else {
+		fprintf(outf, "%s", vstr->str);
+	}
 	la_vstring_destroy(vstr, true);
 	if(pp_sockfd > 0) {
 		output_acars_pp(node);
