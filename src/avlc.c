@@ -151,6 +151,7 @@ static const char *U_cmd[] = {
 
 // forward declaration
 static void output_avlc(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uint8_t *raw_buf, uint32_t len);
+static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uint8_t *raw_buf, uint32_t len);
 
 uint32_t parse_dlc_addr(uint8_t *buf) {
 	debug_print("%02x %02x %02x %02x\n", buf[0], buf[1], buf[2], buf[3]);
