@@ -392,14 +392,14 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 		// fprintf(outf, "AVLC: type: S (%s) P/F: %x rseq: %x\n", S_cmd[f->lcf.S.sfunc], f->lcf.S.pf, f->lcf.S.recv_seq);
 		// output_raw((uint8_t *)f->data, f->datalen);
 		la_vstring_append_sprintf(avlc_str,
-			"{ 'type': 'S', 'sfunc': '%s', 'p/f': '%x', 'rseq': '%x' }",
+			"{ \"type\": \"S\", \"sfunc\": \"%s\", \"p/f\": %x, \"rseq\": %x }",
 			S_cmd[f->lcf.S.sfunc], f->lcf.S.pf, f->lcf.S.recv_seq
 		);
 	} else if(IS_U(f->lcf)) {
 		// fprintf(outf, "AVLC: type: U (%s) P/F: %x\n", U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf));
 		// output_avlc_U(f);
 		la_vstring_append_sprintf(avlc_str,
-			"{ 'type': 'U', 'mfunc': '%s', 'p/f': '%x' }",
+			"{ \"type\": \"U\", \"mfunc\": \"%s\", \"p/f\": %x }",
 			U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf)
 		);
 	} else {	// IS_I == true
@@ -409,14 +409,14 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 			if(f->data_valid) {
 				la_vstring *acars_str = format_acars_json(f->data);
 				la_vstring_append_sprintf(avlc_str,
-					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'acars': %s }",
+					"{ \"type\": \"I\", \"sseq\": %x, \"rseq\": %x, \"poll\": %x, \"proto\": \"%s\", \"acars\": %s }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, acars_str->str
 				);
 				la_vstring_destroy(acars_str, true);
 			}
 			else {
 				la_vstring_append_sprintf(avlc_str,
-					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+					"{ \"type\": \"I\", \"sseq\": %x, \"rseq\": %x, \"poll\": %x, \"proto\": \"%s\", \"error\": \"unparseable\", \"raw\": \"%02x\" }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 				);
 			}
@@ -426,14 +426,14 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 			if(f->data_valid)
 				// output_x25((x25_pkt_t *)f->data);
 				la_vstring_append_sprintf(avlc_str,
-					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'x.25': 'NOT YET IMPLEMENTED' }",
+					"{ \"type\": \"I\", \"sseq\": %x, \"rseq\": %x, \"poll\": %x, \"proto\": \"%s\", \"x.25\": \"NOT YET IMPLEMENTED\" }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str
 				);
 			else {
 				// fprintf(outf, "-- Unparseable X.25 packet\n");
 				// output_raw((uint8_t *)f->data, f->datalen);
 				la_vstring_append_sprintf(avlc_str,
-					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+					"{ \"type\": \"I\", \"sseq\": %x, \"rseq\": %x, \"poll\": %x, \"proto\": \"%s\", \"error\": \"unparseable\", \"raw\": \"%02x\" }",
 					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 				);
 			}
@@ -441,14 +441,14 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 		default:
 			la_vstring_append_sprintf(proto_str, "unknown");
 			la_vstring_append_sprintf(avlc_str,
-				"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+				"{ \"type\": \"I\", \"sseq\": %x, \"rseq\": %x, \"poll\": %x, \"proto\": \"%s\", \"error\": \"unparseable\", \"raw\": \"%02x\" }",
 				f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, (uint8_t *)f->data
 			);
 		}
 	}
 
   la_vstring_append_sprintf(json_str,
-	  "{ 'time': '%s', 'freq': '%.3f', 'signal_power_dbfs': '%.1f', 'noise_floor_power_dbfs': '%.1f', 'net_dbfs': '%.1f', 'ppm': '%.1f', 'source_address': '%06X', 'source_type': '%s', 'source_status': '%s', 'destination_address': '%06X', 'destination_type': '%s', 'destination_status': '%s', 'avlc': '%s' }\n",
+	  "{ \"time\": \"%s\", \"freq\": %.3f, \"signal_power_dbfs\": %.1f, \"noise_floor_power_dbfs\": %.1f, \"net_dbfs\": %.1f, \"ppm\": %.1f, \"source_address\": \"%06X\", \"source_type\": \"%s\", \"source_status\": \"%s\", \"destination_address\": \"%06X\", \"destination_type\": \"%s\", \"destination_status\": \"%s\", \"avlc\": \"%s\" }\n",
 		ftime, (float)v->freq / 1e+6, sig_pwr_dbfs, nf_pwr_dbfs, sig_pwr_dbfs-nf_pwr_dbfs, v->ppm_error,
 		f->src.a_addr.addr, addrtype_descr[f->src.a_addr.type], status_ag_descr[f->dst.a_addr.status],
 		f->dst.a_addr.addr, addrtype_descr[f->dst.a_addr.type], status_ag_descr[f->src.a_addr.status],
