@@ -365,8 +365,8 @@ static void output_avlc(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uin
 }
 
 static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uint8_t *raw_buf, uint32_t len) {
-	if(f == NULL) return;
-	if((daily || hourly) && rotate_outfile() < 0)
+	if (f == NULL) return;
+	if ((daily || hourly) && rotate_outfile() < 0)
 		_exit(1);
 
 	la_vstring *json_str = la_vstring_new();
@@ -384,14 +384,24 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 	// 		 v->synd_weight, v->datalen_octets, v->num_fec_corrections, f->num);
 	// }
 
-	if(output_raw_frames)
+	if (output_raw_frames) {
 		// output_raw(raw_buf, len);
-	if(IS_S(f->lcf)) {
+	}
+
+	if (IS_S(f->lcf)) {
 		// fprintf(outf, "AVLC: type: S (%s) P/F: %x rseq: %x\n", S_cmd[f->lcf.S.sfunc], f->lcf.S.pf, f->lcf.S.recv_seq);
 		// output_raw((uint8_t *)f->data, f->datalen);
+		la_vstring_append_sprintf(avlc_str,
+			"{ 'type': 'S', 'sfunc': '%s', 'p/f': '%x', 'rseq': '%x' }",
+			S_cmd[f->lcf.S.sfunc], f->lcf.S.pf, f->lcf.S.recv_seq
+		);
 	} else if(IS_U(f->lcf)) {
 		// fprintf(outf, "AVLC: type: U (%s) P/F: %x\n", U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf));
 		// output_avlc_U(f);
+		la_vstring_append_sprintf(avlc_str,
+			"{ 'type': 'U', 'mfunc': '%s', 'p/f': '%x' }",
+			U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf)
+		);
 	} else {	// IS_I == true
 		switch(f->proto) {
 		case PROTO_ACARS:
