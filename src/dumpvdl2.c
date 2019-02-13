@@ -368,7 +368,7 @@ int main(int argc, char **argv) {
 		{ "dump-asn1",		no_argument,		NULL,	__OPT_DUMP_ASN1 },
 		{ "extended-header",	no_argument,		NULL,	__OPT_EXTENDED_HEADER },
 		{ "output-file",	required_argument,	NULL,	__OPT_OUTPUT_FILE },
-		{ "output-format-json",	required_argument,	NULL,	__OPT_OUTPUT_FORMAT_JSON },
+		{ "output-format-json",	no_argument,	NULL,	__OPT_OUTPUT_FORMAT_JSON },
 		{ "iq-file",		required_argument,	NULL,	__OPT_IQ_FILE },
 		{ "oversample",		required_argument,	NULL,	__OPT_OVERSAMPLE },
 		{ "sample-format",	required_argument,	NULL,	__OPT_SAMPLE_FORMAT },
@@ -415,7 +415,6 @@ int main(int argc, char **argv) {
 	int statsd_enabled = 0;
 #endif
 	char *infile = NULL, *outfile = NULL, *pp_addr = NULL;
-	int output_format_json = 0;
 
 	fprintf(stderr, "dumpvdl2 %s (libacars %s)\n", DUMPVDL2_VERSION, LA_VERSION);
 	while((opt = getopt_long(argc, argv, "", long_opts, NULL)) != -1) {
