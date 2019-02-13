@@ -110,8 +110,6 @@ void output_acars_json(la_proto_node const * const node) {
 	}
 	fprintf(outf, "{ 'mode': '%1c', 'reg': '%7s', 'ack': '%1c', 'label': '%2s', 'blockId': '%1c', 'no': '%4s', 'flight_id': '%6s', txt: '%s' }",
 		msg->mode, msg->reg, msg->ack, msg->label, msg->block_id, msg->no, msg->flight_id, txt);
-
-	la_vstring_destroy(vstr, true);
 }
 
 void output_acars(void const *msg) {
