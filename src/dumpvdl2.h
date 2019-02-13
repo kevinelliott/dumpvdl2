@@ -219,6 +219,9 @@ typedef struct {
 	vdl2_channel_t **channels;
 } vdl2_state_t;
 
+// acars.c
+extern uint8_t output_format_json;
+
 // bitstream.c
 bitstream_t *bitstream_init(uint32_t len);
 int bitstream_append_msbfirst(bitstream_t *bs, const uint8_t *v, const uint32_t numbytes, const uint32_t numbits);
@@ -257,7 +260,6 @@ int rs_verify(uint8_t *data, int fec_octets);
 extern FILE *outf;
 extern uint8_t hourly, daily, utc, output_raw_frames, dump_asn1, extended_header;
 extern int pp_sockfd;
-extern int output_format_json;
 int init_output_file(char *file);
 int init_pp(char *pp_addr);
 int rotate_outfile();

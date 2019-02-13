@@ -31,6 +31,8 @@
 #include "dumpvdl2.h"
 #include "acars.h"
 
+uint8_t output_format_json = 0;
+
 static void update_msg_type(uint32_t *msg_type, la_proto_node *root) {
 	la_proto_node *node = la_proto_tree_find_acars(root);
 	if(node == NULL) {
