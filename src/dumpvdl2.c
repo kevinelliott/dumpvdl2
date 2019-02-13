@@ -368,7 +368,7 @@ int main(int argc, char **argv) {
 		{ "dump-asn1",		no_argument,		NULL,	__OPT_DUMP_ASN1 },
 		{ "extended-header",	no_argument,		NULL,	__OPT_EXTENDED_HEADER },
 		{ "output-file",	required_argument,	NULL,	__OPT_OUTPUT_FILE },
-		{ "output-json",	required_argument,	NULL,	__OPT_OUTPUT_JSON },
+		{ "output-format-json",	required_argument,	NULL,	__OPT_OUTPUT_FORMAT_JSON },
 		{ "iq-file",		required_argument,	NULL,	__OPT_IQ_FILE },
 		{ "oversample",		required_argument,	NULL,	__OPT_OVERSAMPLE },
 		{ "sample-format",	required_argument,	NULL,	__OPT_SAMPLE_FORMAT },
