@@ -254,7 +254,11 @@ static void parse_avlc(avlc_frame_qentry_t *v) {
 	}
 	if((msg_type & msg_filter) == msg_type) {
 		debug_print("msg_type: %x msg_filter: %x (accepted)\n", msg_type, msg_filter);
-		output_avlc(v, &frame, ptr, len);
+		if (output_format_json) {
+			output_avlc_json(v, &frame, ptr, len);
+		} else {
+			output_avlc(v, &frame, ptr, len);
+		}
 	} else {
 		debug_print("msg_type: %x msg_filter: %x (filtered out)\n", msg_type, msg_filter);
 	}
