@@ -334,27 +334,135 @@ static void output_avlc(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uin
 		fprintf(outf, "AVLC: type: U (%s) P/F: %x\n", U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf));
 		output_avlc_U(f);
 	} else {	// IS_I == true
-		fprintf(outf, "AVLC type: I sseq: %x rseq: %x poll: %x\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
-		switch(f->proto) {
-		case PROTO_ACARS:
-			if(f->data_valid)
-				output_acars(f->data);
-			else {
-				fprintf(outf, "-- Unparseable ACARS payload\n");
+		if (output_format_json) {
+			switch(f->proto) {
+			case PROTO_ACARS:
+				proto = "acars";
+				if(f->data_valid)
+					message = format_acars(f->data);
+				else {
+					message_error = "unparseable";
+					message = format_raw((uint8_t *)f->data, f->datalen);
+				}
+				break;
+			// case PROTO_X25:
+			// 	if(f->data_valid)
+			// 		output_x25((x25_pkt_t *)f->data);
+			// 	else {
+			// 		fprintf(outf, "-- Unparseable X.25 packet\n");
+			// 		output_raw((uint8_t *)f->data, f->datalen);
+			// 	}
+			// 	break;
+			default:
+				proto = "unknown";
+				message = format_raw((uint8_t *)f->data, f->datalen);
+			}
+
+			fprintf(outf, "{ 'avlc': { 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto':  }\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
+		} else {
+			fprintf(outf, "AVLC type: I sseq: %x rseq: %x poll: %x\n", f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll);
+			switch(f->proto) {
+			case PROTO_ACARS:
+				if(f->data_valid)
+					output_acars(f->data);
+				else {
+					fprintf(outf, "-- Unparseable ACARS payload\n");
+					output_raw((uint8_t *)f->data, f->datalen);
+				}
+				break;
+			case PROTO_X25:
+				if(f->data_valid)
+					output_x25((x25_pkt_t *)f->data);
+				else {
+					fprintf(outf, "-- Unparseable X.25 packet\n");
+					output_raw((uint8_t *)f->data, f->datalen);
+				}
+				break;
+			default:
 				output_raw((uint8_t *)f->data, f->datalen);
 			}
-			break;
-		case PROTO_X25:
-			if(f->data_valid)
-				output_x25((x25_pkt_t *)f->data);
-			else {
-				fprintf(outf, "-- Unparseable X.25 packet\n");
-				output_raw((uint8_t *)f->data, f->datalen);
-			}
-			break;
-		default:
-			output_raw((uint8_t *)f->data, f->datalen);
 		}
 	}
 	fflush(outf);
+}
+
+static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f, uint8_t *raw_buf, uint32_t len) {
+	if(f == NULL) return;
+	if((daily || hourly) && rotate_outfile() < 0)
+		_exit(1);
+
+	la_vstring *json_str = la_vstring_new();
+	la_vstring *proto_str = la_vstring_new();
+	la_vstring *avlc_str = la_vstring_new();
+
+	char ftime[30];
+	strftime(ftime, sizeof(ftime), "%F %T %Z",
+		(utc ? gmtime(&v->burst_timestamp.tv_sec) : localtime(&v->burst_timestamp.tv_sec)));
+	float sig_pwr_dbfs = 10.0f * log10f(v->frame_pwr);
+	float nf_pwr_dbfs = 20.0f * log10f(v->mag_nf + 0.001f);
+
+	// if(extended_header) {
+	// 	fprintf(outf, " [S:%d] [L:%u] [F:%d] [#%u]",
+	// 		 v->synd_weight, v->datalen_octets, v->num_fec_corrections, f->num);
+	// }
+
+	if(output_raw_frames)
+		// output_raw(raw_buf, len);
+	if(IS_S(f->lcf)) {
+		// fprintf(outf, "AVLC: type: S (%s) P/F: %x rseq: %x\n", S_cmd[f->lcf.S.sfunc], f->lcf.S.pf, f->lcf.S.recv_seq);
+		// output_raw((uint8_t *)f->data, f->datalen);
+	} else if(IS_U(f->lcf)) {
+		// fprintf(outf, "AVLC: type: U (%s) P/F: %x\n", U_cmd[U_MFUNC(f->lcf)], U_PF(f->lcf));
+		// output_avlc_U(f);
+	} else {	// IS_I == true
+		switch(f->proto) {
+		case PROTO_ACARS:
+			la_vstring_append_sprintf(proto_str, "acars");
+			if(f->data_valid) {
+				la_vstring *acars_str = output_acars_json(f->data);
+				la_vstring_append_sprintf(avlc_str,
+					"{ 'avlc': { 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'acars': '%s' }",
+					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->str, acars_str->str
+				);
+				la_vstring_destroy(acars_str, true);
+			}
+			else {
+				la_vstring_append_sprintf(avlc_str,
+					"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+					f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->data, (uint8_t *)f->data
+				);
+			}
+			break;
+		// case PROTO_X25:
+		// 	if(f->data_valid)
+		// 		output_x25((x25_pkt_t *)f->data);
+		// 	else {
+		// 		fprintf(outf, "-- Unparseable X.25 packet\n");
+		// 		output_raw((uint8_t *)f->data, f->datalen);
+		// 	}
+		// 	break;
+		default:
+			la_vstring_append_sprintf(proto_str, "unknown");
+			la_vstring_append_sprintf(avlc_str,
+				"{ 'type': 'I', 'sseq': '%x', 'rseq': '%x', 'poll': '%x', 'proto': '%s', 'error': 'unparseable', 'raw': '%02x' }",
+				f->lcf.I.send_seq, f->lcf.I.recv_seq, f->lcf.I.poll, proto_str->data, (uint8_t *)f->data
+			);
+		}
+
+		fprintf(outf, avlc_str->str);
+	}
+
+  la_vstring_append_sprintf(json_str,
+	  "{ 'time': '%s', 'freq': '%.3f', 'signal_power_dbfs': '%.1f', 'noise_floor_power_dbfs': '%.1f', 'net_dbfs': '%.1f', 'ppm': '%.1f', 'source_address': '%06X', 'source_type': '%s', 'source_status': '%s', 'destination_address': '%06X', 'destination_type': '%s', 'destination_status': '%s', 'avlc': '%s' }",
+		ftime, (float)v->freq / 1e+6, sig_pwr_dbfs, nf_pwr_dbfs, sig_pwr_dbfs-nf_pwr_dbfs, v->ppm_error,
+		f->src.a_addr.addr, addrtype_descr[f->src.a_addr.type], status_ag_descr[f->dst.a_addr.status],
+		f->dst.a_addr.addr, addrtype_descr[f->dst.a_addr.type], status_ag_descr[f->src.a_addr.status],
+		avlc_str->str,
+	);
+
+	fprintf(outf, json_str->str);
+	fflush(outf);
+
+	la_vstring_destroy(json_str, true);
+	la_vstring_destroy(proto_str, true);
 }

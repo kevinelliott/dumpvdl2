@@ -110,6 +110,24 @@ static void output_acars_json(la_proto_node const * const node) {
 			*ptr = ' ';
 		}
 	}
+	la_vstring *vstr = la_vstring_new();
+	la_vstring_append_sprintf(vstr, "{ 'mode': '%1c', 'reg': '%7s', 'ack': '%1c', 'label': '%2s', 'blockId': '%1c', 'no': '%4s', 'flight_id': '%6s', txt: '%s' }",
+			msg->mode, msg->reg, msg->ack, msg->label, msg->block_id, msg->no, msg->flight_id, txt);
+	XFREE(txt);
+	return vstr;
+}
+
+static void format_acars_json(la_proto_node const * const node) {
+	if(node == NULL || node->td != &la_DEF_acars_message) {
+		return;
+	}
+	la_acars_msg *msg = node->data;
+	char *txt = strdup(msg->txt);
+	for(char *ptr = txt; *ptr != 0; ptr++) {
+		if (*ptr == '\n' || *ptr == '\r') {
+			*ptr = ' ';
+		}
+	}
 	fprintf(outf, "{ 'mode': '%1c', 'reg': '%7s', 'ack': '%1c', 'label': '%2s', 'blockId': '%1c', 'no': '%4s', 'flight_id': '%6s', txt: '%s' }",
 		msg->mode, msg->reg, msg->ack, msg->label, msg->block_id, msg->no, msg->flight_id, txt);
 }
