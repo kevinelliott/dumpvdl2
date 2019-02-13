@@ -448,7 +448,7 @@ static void output_avlc_json(const avlc_frame_qentry_t *v, const avlc_frame_t *f
 	}
 
   la_vstring_append_sprintf(json_str,
-	  "{ \"time\": \"%s\", \"freq\": %.3f, \"signal_power_dbfs\": %.1f, \"noise_floor_power_dbfs\": %.1f, \"net_dbfs\": %.1f, \"ppm\": %.1f, \"source_address\": \"%06X\", \"source_type\": \"%s\", \"source_status\": \"%s\", \"destination_address\": \"%06X\", \"destination_type\": \"%s\", \"destination_status\": \"%s\", \"avlc\": \"%s\" }\n",
+	  "{ \"time\": \"%s\", \"freq\": %.3f, \"signal_power_dbfs\": %.1f, \"noise_floor_power_dbfs\": %.1f, \"net_dbfs\": %.1f, \"ppm\": %.1f, \"source_address\": \"%06X\", \"source_type\": \"%s\", \"source_status\": \"%s\", \"destination_address\": \"%06X\", \"destination_type\": \"%s\", \"destination_status\": \"%s\", \"avlc\": %s }\n",
 		ftime, (float)v->freq / 1e+6, sig_pwr_dbfs, nf_pwr_dbfs, sig_pwr_dbfs-nf_pwr_dbfs, v->ppm_error,
 		f->src.a_addr.addr, addrtype_descr[f->src.a_addr.type], status_ag_descr[f->dst.a_addr.status],
 		f->dst.a_addr.addr, addrtype_descr[f->dst.a_addr.type], status_ag_descr[f->src.a_addr.status],
